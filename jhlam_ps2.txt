@@ -1,0 +1,32 @@
+1.a:
+The main difference is how the communication is done in both. For a blocking communication, We use MPI_Send() and MPI_Recv(). After an instance have callet these functions, they will be blocked until the communication is finished. The code will stop and wait for the communication to be finished.
+
+For the non-blocking, the functions will not stop after calling the send and recieve functions: Isend(), IRecv().  The function will not wait for the other part to have recived the message, the non-blocking communication will allow you to do computation even after you send a message, this often results in an improved code, altho more prone to error.
+
+1.b:
+The synchronous send in MPI is similare to the blocking send, the main difference is if an acknowledgement message is sent back to sender. The Process will wait after an synchronous send for the reciver to send back an acknowledgment message. With this type of message passing protocol, we can often ensure synchronization and the flow of the program will be more predictable.
+
+in an asynchronous send the function will not wait for the acknowledment taht the message is been recived or have recived a message. The process will just continue altho the process don't know if the send was a success or not. Often this option opens up more room for optimization.
+
+
+
+3.a:
+Sa = 1/ (0,4 + 0,6/10) = 2.174x speedup
+
+3.b:
+Sg = 10 - 0,6(10-1) = 4,6 s 
+
+3.c:
+Amdahl's law tells us how much faster by parallelize part of your program, gustafson's law o nthe other hand, tells us what the new runtime is. by dividing T(old)/ T(new), we get the same amount, 2.174x speedup.
+
+4.a:
+By my calculations, every core must have their respective subdomain and a border connection it with the other part. from the recitation we saw that every ore must have 2 ekstra, the total amount of element that gets send out, will be total amount = (n + 2m)^2. 
+
+4.b:
+border exchange elements  = m^2 * (4*sqrt((total amount / m^2)) - 4 )
+
+4.c:
+time s = b*(n+2) / r
+
+4.d:
+T = (t(n^2/m^2)) + (b*(n+2m)/r); this is theory should be it, on the other hand, the functions here is of function m, for the cores. n here is number of n x n matrix as the assignment told us in the begining.
