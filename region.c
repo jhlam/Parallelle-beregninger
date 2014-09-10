@@ -85,8 +85,14 @@ void create_types(){
 
 
 // Send image from rank 0 to all ranks, from image to local_image
+// The function should react different acording to the rank of the program, rank 0 is the sender, rank 1-(size-1) is the recivers
 void distribute_image(){
-    
+    if(rank == 0){
+
+        for(int i=1; i< size; i++){
+            image_spilt_and_send(image, i); // should be a function that splits the image to apropiate size.
+        }
+    }
     
 }
 
