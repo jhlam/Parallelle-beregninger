@@ -33,13 +33,14 @@ MPI_Comm cart_comm;             // Cartesian communicator
 // MPI datatypes, you may have to add more.
 MPI_Datatype border_row_t,
              border_col_t;
+             origianl_image;
+             partial_image;
 
 
 unsigned char *image,           // Entire image, only on rank 0
               *region,          // Region bitmap. 1 if in region, 0 elsewise
               *local_image,     // Local part of image
               *local_region;    // Local part of region bitmap
-
 
 // Create new pixel stack
 stack_t* new_stack(){
@@ -80,34 +81,110 @@ int similar(unsigned char* im, pixel_t p, pixel_t q){
 
 // Create and commit MPI datatypes
 void create_types(){
-    
+    int count = 512 / dim[1];//this is true if the count in mpi_vector is defined for y-cord for our vector.
+    int blocklen = 512/dim[0];// this is true if blocklen is for the block total lenght.
+    int stride = 512 - blocklen + 1;
+   
+    MPI_Type_vector(count, blocklen, stride,origianl_image, &partial_image );//here, the count would be the total amount of pixels divide by total amount of cores.
+    MPI_Type_commit( &partial_image);
+
+    MPI_Type_vector(count, 1, 512, original_image, &border_col_t);
+    MPI_Type_commit(&border_col_t);
+
+    MPI_Type_vector(1, blocklen, 1,original_image, &border_row_t );
+    MPI_Type_commit(&border_row_t);
+
+
+    MPI_Type__vector();
+    MPI_Type_commit();
 }
 
 
 // Send image from rank 0 to all ranks, from image to local_image
 // The function should react different acording to the rank of the program, rank 0 is the sender, rank 1-(size-1) is the recivers
 void distribute_image(){
-    if(rank == 0){
+    // int local_image_x = 512/ dim[0];
+    // int local_image_y = 512/ dim[1];
+    // MPI_scatter(void* send_data, int send_count, MPI_Datatype send_datatype, void* recv_data, int recv_count, MPI_Datatype recv_datatype, int root, MPI_Comm communicator);  
 
-        for(int i=1; i< size; i++){
-            image_spilt_and_send(image, i); // should be a function that splits the image to apropiate size.
-        }
-    }
+    // My original idea was using MPI_scatter to distribute the partitioned image. But after discussing it with the T.A, I was informed that my idea was incorrect.
+
+    //Here my thoughts are, I have allready created a MPI_vector in create_types. Then i can start using it here.
+    if(rank ==0){
+        for(int i=0 ; i<size; i++){
+            MPI_send(&image, 1, partial_image, i, 1 );
+
+       // MPI_send(&local_image_x, 1, MPI_INT, i, 1);
+       // MPI_send(&local_image-y, 1, MPI_INT, i, 1);
     
+        }
+       //soem kind of algorithm to store the local element to rank 0, using the same logick as the MPI_vector, my initial idea was to send an mpi message to myself, but quickly gave up the idea.
+
+        for(int row = 0; row< local_image_size[1], row++){
+            for (int col; col < local_image_size[0], col++){
+                
+                index = (row)*local_image_size[1] + col);
+                destination = (row+1)*local_image_size[1] +col+1 ;
+
+                local_image [destination] = image[index];
+            }
+        }
+
+    }
+
+    else{
+        MPI_recv(&local_image[local_image_size[0]*1 + 1], 1, partial_image, 0, 1);
+        // MPI_recv(&local_image_size[0], 1, MPI_INT, 0, 1);
+        // MPI_recv(&local_image_size[1], 1, MPI_INT, 0, 1);
+
+    }
+    //Initiate the halo for all the process, doing so by asking every rank to send their border to their respectable naighbour.
+    init_halo();
+   // MPI_Scatter(image, 1 , partial_image, local_image, 1,partial_image, 0,cart_comm );
+ 
 }
 
 
+
+void init_halo(){
+    int max_x_value = local_image_size[1] + 1; 
+    int max_y_value = local_image_size[0] + 1;
+    //each partial_image, will send their respective borders to their neighbour. This section is actually just an halo exchange
+    for(int i=0; i<4; i++){
+        if(north){
+            MPI_send(&local_image[local_image_size[1] + 1], 1, border_row_t,   north,  1);
+            MPI_recv(&local_image[0],                      , 1, border_row_t,   north,  1);
+        }
+        if(south){
+            MPI_send(&local_image[(max_y_value) * 1 + (local_image_size[0]-2), 1, border_row_t,   south,  1);
+            MPI_recv(&local_image[max_x_value*local_image_size[0]-1],        , 1, border_row_t,   south,  1);
+        }
+        if(east){
+            MPI_send(&local_image[local_image_size[1]-2, 1, border_col_t,   east,  1);
+            MPI_recv(&local_image[local_image_size[1]-1, 1, border_col_t,   east,  1);
+        }
+        if(west){
+            MPI_send(&local_image[1], 1, border_col_t,   west,  1);
+            MPI_recv(&local_image[0], 1, border_col_t,   west,  1);
+        }
+
+    }   
+}
+
 // Exchange borders with neighbour ranks
-void exchange(stack_t* stack){
-    
-    
+void exchange(stack_t* stack){  
+       
 }
 
 
 // Gather region bitmap from all ranks to rank 0, from local_region to region
 void gather_region(){
-    
-    
+    if(0 == rank){
+        for(int i =1; i<size; i++){
+            MPI_recv(&region, 1, partial_region, i, 1);
+        }
+
+    }
 }
 
 // Determine if all ranks are finished. You may have to add arguments.
@@ -121,7 +198,6 @@ int finished(){
 int inside(pixel_t p){
     return (p.x >= 0 && p.x < local_image_size[1] && p.y >= 0 && p.y < local_image_size[0]);
 }
-
 
 // Adding seeds in corners.
 void add_seeds(stack_t* stack){
