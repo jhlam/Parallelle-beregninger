@@ -3,6 +3,6 @@ run : spmv
 
 spmv : spmv.c
 	gcc -Wall -std=c99 -O3 -msse3 spmv.c -o spmv -lm
-	
+
 clean :
 	rm spmv

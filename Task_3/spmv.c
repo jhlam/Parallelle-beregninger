@@ -192,24 +192,30 @@ void multiply(csr_matrix_t* m, float* v, float* r){
     int row_ptr_ind;
     int row_ptr_next;
     float temp, counter;
-   // __m128 x, y, z;
-       for(int i = 0; i < m->n_row_ptr-1; i++){
-           row_ptr_ind = m->row_ptr[i];
-           row_ptr_next = m->row_ptr[i+1];
-           temp =0;
-           // counter = 0;
-            
-            for(int j = row_ptr_ind; j <  row_ptr_next; j++){
-            // x = _mm_loadu_ps(&v[m->col_ind[j]]);
-            // y = _mm_loadu_ps(&m->values[j]);
+   __m128 x, y, z;
+   x = _mm_loadu_ps(&m->values[0]);
+   _mm_storeu_ps(&temp, x);
+   printf("test 1: %f \n", temp);
+   printf("test 1: %f \n", m->values[0]);
+
+   for(int i = 0; i < m->n_row_ptr-1; i++){
+        row_ptr_ind = m->row_ptr[i];
+        row_ptr_next = m->row_ptr[i+1];
+        //temp =0;
+        counter = 0;
+       //  x = _mm_loadu_ps(&m->values[0]);
+        // _mm_storeu_ps(&temp, z);
+        for(int j = row_ptr_ind; j <  row_ptr_next; j++){
+            //x = _mm_loadu_ps(&v[m->col_ind[j]]);
+           // y = _mm_loadu_ps(&m->values[j]);
             // z = x * y;
-            // z = _mm_mul_ps(x,y);
-            // _mm_storeu_ps(&temp,z);
-            // counter += temp;
-                 temp += v[m->col_ind[j]] * m->values[j];
+           // z = _mm_mul_ps(x,y);
+         //   _mm_storeu_ps(&temp,z);
+            //counter += temp;
+            //     temp += v[m->col_ind[j]] * m->values[j];
         }
-           // r[i] = counter;
-        r[i] = temp;
+          //  r[i] = counter;
+            //r[i] = temp;
     }
     
 }
@@ -233,6 +239,7 @@ int main(int argc, char** argv){
     float* v = create_vector(dim);
     float* r1 = (float*)calloc(dim, sizeof(float));
     float* r2 = (float*)calloc(dim, sizeof(float));
+
     
     struct timeval start, end;
 
