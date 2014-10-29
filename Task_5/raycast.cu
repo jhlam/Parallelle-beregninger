@@ -331,7 +331,7 @@ __global__ void raycast_kernel(unsigned char* data, unsigned char* image, unsign
 	//the code would be the same, but the differents would be that the double for-loop would be just for this single thread. 
 	
 	int x = threadIdx.x - (IMAGE_DIM/2);
-	int y = blockIdx.y - (IMAGE_DIM/2);
+	int y = blockIdx.x - (IMAGE_DIM/2);
 	float3 screen_center = add(camera, forward);
 	float3 ray = add(add(screen_center, scale( right, x*pixel_width)), scale(up, y*pixel_width));
 	ray = add(ray, scale(camera, -1));
