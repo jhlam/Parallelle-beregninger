@@ -145,7 +145,7 @@ unsigned char* create_data(){
 }
 
 // Checks if position is inside the volume (float3 and int3 versions)
-int inside(float3 pos){
+__host__ __device__ int inside(float3 pos){
     int x = (pos.x >= 0 && pos.x < DATA_DIM-1);
     int y = (pos.y >= 0 && pos.y < DATA_DIM-1);
     int z = (pos.z >= 0 && pos.z < DATA_DIM-1);
@@ -153,7 +153,7 @@ int inside(float3 pos){
     return x && y && z;
 }
 
-int inside(int3 pos){
+__host__ __device__ int inside(int3 pos){
     int x = (pos.x >= 0 && pos.x < DATA_DIM);
     int y = (pos.y >= 0 && pos.y < DATA_DIM);
     int z = (pos.z >= 0 && pos.z < DATA_DIM);
@@ -162,7 +162,7 @@ int inside(int3 pos){
 }
         
 // Indexing function (note the argument order)
-int index(int z, int y, int x){
+__host__ __device__ int index(int z, int y, int x){
     return z * DATA_DIM*DATA_DIM + y*DATA_DIM + x;
 }
 
