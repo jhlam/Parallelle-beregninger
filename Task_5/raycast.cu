@@ -331,7 +331,7 @@ __global__ void raycast_kernel(unsigned char* data, unsigned char* image, unsign
 	//the code would be the same, but the differents would be that the double for-loop would be just for this single thread. 
 	
 	int x = threadIdx.x - (IMAGE_DIM/2);
-	int y = threadIdx.y - (IMAGE_DIM/2);
+	int y = blockIdx.y - (IMAGE_DIM/2);
 	float3 screen_center = add(camera, forward);
 	float3 ray = add(add(screen_center, scale( right, x*pixel_width)), scale(up, y*pixel_width));
 	ray = add(ray, scale(camera, -1));
@@ -432,7 +432,7 @@ unsigned char* raycast_gpu(unsigned char* data, unsigned char* region){
 	cudaMemcpy(d_image, image, total_pixels,cudaMemcpyHostToDevice);
 	
 	//calls the raycasting function
-	raycast_kernel<<<total_pixels/2, total_pixels/2>>>(data, image, region);
+	raycast_kernel<<<IMAGE_DIM, IMAGE_DIM>>>(data, image, region);
 	
 	//copy the memory/data from the devic(GPU) back to the host(CPU)
 	cudaMemcpy(image, d_image, total_pixels,cudaMemcpyDeviceToHost);
