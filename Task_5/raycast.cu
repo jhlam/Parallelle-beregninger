@@ -427,15 +427,14 @@ unsigned char* raycast_gpu(unsigned char* data, unsigned char* region){
 	cudaMalloc(&d_image, sizeof(unsigned char)*total_pixels);
 	
 	//copy the memory/data from the host(CPU) to the device(GPU)
-	cudaMemcpy(d_data, data, DATA_DIM*DATA_DIM*DATA_DIM,cudaMemcpyHostToDevice);
-	cudaMemcpy(d_region, region, DATA_DIM*DATA_DIM*DATA_DIM,cudaMemcpyHostToDevice);
-	cudaMemcpy(d_image, image, total_pixels,cudaMemcpyHostToDevice);
+	cudaMemcpy(d_data, data,sizeof(unsigned char)* DATA_DIM*DATA_DIM*DATA_DIM,cudaMemcpyHostToDevice);
+	cudaMemcpy(d_region, region,sizeof(unsigned char)* DATA_DIM*DATA_DIM*DATA_DIM,cudaMemcpyHostToDevice);
 	
 	//calls the raycasting function
 	raycast_kernel<<<IMAGE_DIM, IMAGE_DIM>>>(data, image, region);
 	
 	//copy the memory/data from the devic(GPU) back to the host(CPU)
-	cudaMemcpy(image, d_image, total_pixels,cudaMemcpyDeviceToHost);
+	cudaMemcpy(image, d_image, sizeof(unsigned char) * total_pixels,cudaMemcpyDeviceToHost);
 	
 	//assume that all the memory on the device is done, should be safe to free the memory now.
 	cudaFree(d_data);
