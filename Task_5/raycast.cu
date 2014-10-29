@@ -505,9 +505,9 @@ int main(int argc, char** argv){
     unsigned char* region = grow_region_serial(data);
     
     
-	//unsigned char* image = raycast_serial(data, region);
+	unsigned char* image = raycast_serial(data, region);
     
-	unsigned char* image = raycast_gpu(data, region);
+	//unsigned char* image = raycast_gpu(data, region);
 	
 	
     write_bmp(image, IMAGE_DIM, IMAGE_DIM);
