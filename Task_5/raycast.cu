@@ -167,7 +167,7 @@ int index(int z, int y, int x){
 }
 
 // Trilinear interpolation
-float value_at(float3 pos, unsigned char* data){
+__host__ __device__ float value_at(float3 pos, unsigned char* data){
     if(!inside(pos)){
         return 0;
     }
