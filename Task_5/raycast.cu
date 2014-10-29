@@ -330,8 +330,8 @@ __global__ void raycast_kernel(unsigned char* data, unsigned char* image, unsign
 //The part down here is the part where the camera go through the #D datasheet and sample the values.
 	//the code would be the same, but the differents would be that the double for-loop would be just for this single thread. 
 	
-	int x = (blockIdx.x*blockDim.x + threadIdx.x) - (IMAGE_DIM/2);
-	int y = (blockIdx.y*blockDim.y+ threadIdx.y)  - (IMAGE_DIM/2);
+	int x = ( threadIdx.x) - (IMAGE_DIM/2);
+	int y = (blockIdx.x)  - (IMAGE_DIM/2);
 	float3 screen_center = add(camera, forward);
 	float3 ray = add(add(screen_center, scale( right, x*pixel_width)), scale(up, y*pixel_width));
 	ray = add(ray, scale(camera, -1));
@@ -342,7 +342,7 @@ __global__ void raycast_kernel(unsigned char* data, unsigned char* image, unsign
             // or we've done 5000 iterations (5000 is a bit arbitrary, it needs 
             // to be big enough to let rays pass through the entire volume)
             int i = 0;
-            float color = 0;
+            float color = 0 ;
             while(color < 255 && i < 5000){
                 i++;
                 pos = add(pos, scale(ray, step_size));          // Update position
