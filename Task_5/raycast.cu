@@ -350,7 +350,7 @@ __global__ void raycast_kernel(unsigned char* data, unsigned char* image, unsign
                 color += value_at(pos, data)*(0.01 + r) ;       // Update the color based on data value, and if we're in the region
 	}
 	 // Write final color to image
-				image[(y+(IMAGE_DIM/2)) * IMAGE_DIM + (x+(IMAGE_DIM/2))] = color > 255 ? 255 : color;
+			image[(y+(IMAGE_DIM/2)) * IMAGE_DIM + (x+(IMAGE_DIM/2))] = 255;//color > 255 ? 255 : color;
 			
 	
 }
